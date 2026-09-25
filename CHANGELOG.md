@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.0]
+
+- **Code-debt watcher** (PostToolUse on Write/Edit, sigma-build only): while a C2 build is in progress — a `builds/*.plan.md` with `status: plan-locked` whose `c2-scratch.md` was touched in the last 12 hours — flags fragile patterns in written code (swallowed errors, shared mutable state, mutable defaults, blanket `noqa`/`type: ignore`, sleep-based sync) into that build's scratch. At most 3 flags per build.
+
 ## [0.2.0]
 
 - **Retrospective hook** (Stop): appends one retrospective per finished review to `shared/patterns.md` — convergence, DA effectiveness, hygiene outcomes, source tiers, XVERIFY use, and a recommendation. Fires only after chain closure (`## compilation-complete:` / `## synthesis-complete:` / `## archive-complete:` or `## status: archived`) and at most once per `review-id` / `build-id`.

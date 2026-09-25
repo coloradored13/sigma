@@ -13,7 +13,7 @@ The process is a recipe, and hooks check that it was followed. A **chain evaluat
 |---|---|
 | Skills | `sigma-review`, `sigma-build`, `sigma-setup` |
 | Agents | lead, devil's advocate, synthesis, compilation, plus 11 specialists: reference-class analyst, cognitive/decision scientist, tech architect, implementation engineer, code-quality analyst, security specialist, product strategist, product designer, UI/UX engineer, UX researcher, technical writer |
-| Hooks | chain evaluator and retrospective (Stop), phase gate (Pre/PostToolUse), MCP compliance monitor, per-agent calibration tracker, prompt-echo detector, session-start sync |
+| Hooks | chain evaluator and retrospective (Stop), phase gate (Pre/PostToolUse), MCP compliance monitor, per-agent calibration tracker, prompt-echo detector, code-debt watcher (sigma-build), session-start sync |
 | Memory | [sigma-mem](https://github.com/coloradored13/sigma-mem) MCP server: agent memory, team decisions and patterns that persist across reviews |
 | Cross-model checks | [sigma-verify](https://github.com/coloradored13/sigma-verify) MCP server (optional): findings get checked by non-Anthropic models |
 

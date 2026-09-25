@@ -17,6 +17,9 @@ from datetime import datetime
 
 
 TEAM_DIR = sp.SHARED
+# Per-agent runtime dirs (memory.md lives here). ~/.claude/agents holds flat .md
+# definitions, not directories — pointing there made every entry fall back to a
+# single shared log, mixed with messages from non-sigma sessions (fixed 26.9.25).
 AGENTS_DIR = sp.SIGMA_HOME / "agents"
 
 
