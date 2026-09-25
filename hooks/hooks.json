@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.py\"", "timeout": 10 }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|Bash|SendMessage",
+        "hooks": [
+          { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/phase-gate.py\"", "timeout": 5 }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|SendMessage",
+        "hooks": [
+          { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/phase-gate.py\"", "timeout": 5 }
+        ]
+      },
+      {
+        "matcher": "mcp__sigma-mem__store_agent_memory|mcp__sigma-mem__store_team_decision|mcp__sigma-mem__store_team_pattern|mcp__sigma-verify__init|mcp__sigma-verify__verify_finding|mcp__sigma-verify__cross_verify|mcp__sigma-verify__challenge",
+        "hooks": [
+          { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-compliance-monitor.py\"", "timeout": 5 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/chain-evaluator.py\"", "timeout": 15 }
+        ]
+      }
+    ]
+  }
+}
