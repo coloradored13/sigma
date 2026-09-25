@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0]
+
+- **Retrospective hook** (Stop): appends one retrospective per finished review to `shared/patterns.md` — convergence, DA effectiveness, hygiene outcomes, source tiers, XVERIFY use, and a recommendation. Fires only after chain closure (`## compilation-complete:` / `## synthesis-complete:` / `## archive-complete:` or `## status: archived`) and at most once per `review-id` / `build-id`.
+- **Agent calibration tracker** (PostToolUse on SendMessage): records each roster agent's findings count, DA grade, concessions, source tiers and XVERIFY use to `agents/<name>/calibration.md`, with trends after three entries. Messages from non-roster senders are ignored.
+- **Prompt-echo detector** (PostToolUse on Write/Edit): flags workspace findings that restate the prompt's own claims (H[]) instead of testing them.
+
 ## [0.1.0] — first public release
 
 - Claude Code plugin packaging for sigma-review (ANALYZE) and sigma-build (BUILD).

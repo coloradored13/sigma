@@ -1,10 +1,19 @@
 {
   "name": "sigma",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Multi-agent adversarial review (sigma-review) and build (sigma-build) teams for Claude Code, with a devil's advocate, peer verification, cross-model checks and a mechanical chain evaluator.",
-  "author": { "name": "coloradored13", "url": "https://github.com/coloradored13" },
+  "author": {
+    "name": "coloradored13",
+    "url": "https://github.com/coloradored13"
+  },
   "homepage": "https://github.com/coloradored13/sigma",
   "repository": "https://github.com/coloradored13/sigma",
   "license": "Apache-2.0",
-  "keywords": ["multi-agent", "review", "devils-advocate", "agent-teams", "verification"]
+  "keywords": [
+    "multi-agent",
+    "review",
+    "devils-advocate",
+    "agent-teams",
+    "verification"
+  ]
 }

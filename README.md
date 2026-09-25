@@ -13,7 +13,7 @@ The process is a recipe, and hooks check that it was followed. A **chain evaluat
 |---|---|
 | Skills | `sigma-review`, `sigma-build`, `sigma-setup` |
 | Agents | lead, devil's advocate, synthesis, compilation, plus 11 specialists: reference-class analyst, cognitive/decision scientist, tech architect, implementation engineer, code-quality analyst, security specialist, product strategist, product designer, UI/UX engineer, UX researcher, technical writer |
-| Hooks | chain evaluator (Stop), phase gate (Pre/PostToolUse), MCP compliance monitor, session-start sync |
+| Hooks | chain evaluator and retrospective (Stop), phase gate (Pre/PostToolUse), MCP compliance monitor, per-agent calibration tracker, prompt-echo detector, session-start sync |
 | Memory | [sigma-mem](https://github.com/coloradored13/sigma-mem) MCP server: agent memory, team decisions and patterns that persist across reviews |
 | Cross-model checks | [sigma-verify](https://github.com/coloradored13/sigma-verify) MCP server (optional): findings get checked by non-Anthropic models |
 
@@ -60,8 +60,8 @@ Run `python3 ~/.claude/teams/sigma-review/bin/chain-evaluator.py status` at any 
 
 | Path | Contents |
 |---|---|
-| `~/.claude/teams/sigma-review/shared/` | workspace, archive, wiki, roster, decisions, patterns, calibration log |
-| `~/.claude/teams/sigma-review/agents/<name>/memory.md` | each agent's persistent memory |
+| `~/.claude/teams/sigma-review/shared/` | workspace, archive, wiki, roster, decisions, patterns (including one retrospective per finished review), calibration log |
+| `~/.claude/teams/sigma-review/agents/<name>/` | each agent's persistent memory (`memory.md`) and track record (`calibration.md`) |
 | `~/.claude/teams/sigma-review/agent-defs/`, `shared/directives.md`, `shared/build-directives.md`, `shared/protocols.md`, `bin/` | framework files, managed by the plugin |
 | `~/.claude/memory/` | sigma-mem's personal (non-team) memory |
 
