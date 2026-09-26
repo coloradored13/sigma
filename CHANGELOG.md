@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.1]
+
+- Chain evaluator's Stop hook skips workspaces marked `## status: archived`, so a finished review left in place is no longer re-scored every turn (which rewrote its evaluation and re-appended calibration records). `chain-evaluator.py evaluate`/`status` still score it on demand.
+
 ## [0.3.0]
 
 - **Code-debt watcher** (PostToolUse on Write/Edit, sigma-build only): while a C2 build is in progress — a `builds/*.plan.md` with `status: plan-locked` whose `c2-scratch.md` was touched in the last 12 hours — flags fragile patterns in written code (swallowed errors, shared mutable state, mutable defaults, blanket `noqa`/`type: ignore`, sleep-based sync) into that build's scratch. At most 3 flags per build.

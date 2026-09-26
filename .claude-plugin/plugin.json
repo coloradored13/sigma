@@ -1,6 +1,6 @@
 {
   "name": "sigma",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Multi-agent adversarial review (sigma-review) and build (sigma-build) teams for Claude Code, with a devil's advocate, peer verification, cross-model checks and a mechanical chain evaluator.",
   "author": {
     "name": "coloradored13",

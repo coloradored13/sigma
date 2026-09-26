@@ -163,6 +163,23 @@ class TestEnforceStop:
         result = ce.enforce_stop({})
         assert result == {}
 
+    def test_skips_archived_workspace(self, patch_paths):
+        """26.9.26: a finished review left as the active workspace must not be
+        re-scored on every Stop (it rewrote the eval timestamp + re-appended
+        CAL-EMITs, re-dirtying the repo so A14 never stayed green)."""
+        write, ws, _ = patch_paths
+        write(ACTIVE_ANALYZE_WORKSPACE.replace("## status: active", "## status: archived"))
+        before = ws.read_text()
+        result = ce.enforce_stop({})
+        assert result == {}
+        assert ws.read_text() == before
+
+    def test_cli_still_scores_archived_workspace(self, patch_paths):
+        write, _, _ = patch_paths
+        write(ACTIVE_ANALYZE_WORKSPACE.replace("## status: active", "## status: archived"))
+        result = ce.evaluate_chain()
+        assert len(result.items) > 0
+
     def test_evaluates_active_sigma_workspace(self, patch_paths):
         write, _, _ = patch_paths
         write(ACTIVE_ANALYZE_WORKSPACE)

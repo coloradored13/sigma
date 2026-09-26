@@ -1878,6 +1878,9 @@ def write_evaluation_to_workspace(result: ChainResult,
 # Hook dispatch (Stop hook entry point)
 # ---------------------------------------------------------------------------
 
+_ARCHIVED_STATUS_RE = re.compile(r"^##\s*status:\s*archived\b", re.MULTILINE | re.IGNORECASE)
+
+
 def enforce_stop(data: dict) -> dict:
     """Stop hook handler: evaluate chain, write to workspace, return systemMessage.
 
@@ -1897,6 +1900,13 @@ def enforce_stop(data: dict) -> dict:
     # Check if this is a sigma-review or sigma-build session
     # (workspace must have ## task or ## mode section)
     if "## task" not in content.lower() and "## mode" not in content.lower():
+        return {}
+
+    # A finished review stays the active workspace until the next one starts.
+    # Re-scoring it every Stop rewrote the evaluation timestamp and re-appended
+    # CAL-EMIT records, re-dirtying the repo so A14 could never stay green
+    # (26.9.26). The CLI (`evaluate`/`status`) still scores archived workspaces.
+    if _ARCHIVED_STATUS_RE.search(content):
         return {}
 
     # Idempotency: skip if workspace hasn't changed since last evaluation
