@@ -1,0 +1,15 @@
+{
+  "status": "unpublished-alpha",
+  "version": "0.1.0a1",
+  "packages": {
+    "sigma-public-core": "0.1.0a1",
+    "sigma-public-memory": "0.1.0a1",
+    "sigma-public-verify": "0.1.0a1",
+    "sigma-public": "0.1.0a1"
+  },
+  "dependency_lock": "uv.lock",
+  "plugin_version": "0.1.0-alpha.1",
+  "verification_default": "offline",
+  "legacy_import": false,
+  "platform": "Linux"
+}

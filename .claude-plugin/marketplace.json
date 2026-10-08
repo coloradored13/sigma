@@ -1,15 +1,15 @@
 {
   "name": "sigma",
-  "description": "sigma: multi-agent review and build teams for Claude Code with adversarial quality gates.",
+  "description": "Independent public Sigma rebuild; initial alpha workflow guidance.",
   "owner": {
     "name": "coloradored13",
     "url": "https://github.com/coloradored13"
   },
   "plugins": [
     {
-      "name": "sigma",
-      "source": "./",
-      "description": "sigma-review (multi-agent analysis) and sigma-build (multi-agent implementation) with adversarial quality gates."
+      "name": "sigma-public",
+      "source": "./plugins/sigma-public",
+      "description": "Alpha guide for explicit evidence and build receipts; not the legacy Sigma agent team."
     }
   ]
 }

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sigma-public"
+version = "0.1.0a1"
+requires-python = ">=3.11"
+description = "Evidence and execution receipts for the independent Sigma Public workflow"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+readme = "README.md"
+dependencies = ["sigma-public-core==0.1.0a1", "sigma-public-memory==0.1.0a1", "sigma-public-verify==0.1.0a1"]
+
+[project.scripts]
+sigma-public = "sigma_public.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sigma_public"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src/sigma_public/**/*.py", "/pyproject.toml", "/README.md", "/LICENSE", "/.gitignore"]

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sigma-public-verify"
+version = "0.1.0a1"
+requires-python = ">=3.11"
+description = "Evidence-linked, policy-controlled verification for Sigma Public"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+readme = "README.md"
+dependencies = ["sigma-public-core==0.1.0a1", "mcp==1.30.0", "httpx>=0.28,<1"]
+
+[project.scripts]
+sigma-public-verify = "sigma_public_verify.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sigma_public_verify"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src/sigma_public_verify/**/*.py", "/pyproject.toml", "/README.md", "/LICENSE", "/.gitignore"]

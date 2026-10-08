@@ -1,95 +1,172 @@
-# sigma
+# Sigma — public rebuild (alpha)
 
-Multi-agent analysis and build teams for [Claude Code](https://code.claude.com), with adversarial quality gates.
+An independent alpha successor to Sigma, built around resource-bound workflows,
+project-scoped memory, explicit verification policy, and durable execution receipts.
+The public components have separate package names, entry points, and runtime stores.
+They do not discover or import an existing Sigma installation or personal memory.
 
-- **`/sigma-review <question>`** runs an analysis. A lead assembles a team of specialist agents who research independently, get challenged by a devil's advocate, verify each other's work, and hand off to a context-firewalled synthesis agent.
-- **`/sigma-build <task>`** runs an implementation across three conversations: plan → build → review. The plan is locked before any code is written.
+This rebuild lives in the existing `coloradored13/sigma` public repository. It keeps
+that repository's history while replacing its implementation. The new package and
+MCP names stay distinct from private installations. See [REBUILD.md](docs/REBUILD.md)
+for compatibility, review, and recovery details.
 
-The process is a recipe, and hooks check that it was followed. A **chain evaluator** runs when the session ends and scores the workspace against about 25 checks, including source tags on findings, devil's-advocate challenges and responses, belief tracking, exit gate, peer verification, synthesis and archive. A **phase gate** blocks the specific shortcuts that past runs took, such as the lead writing its own synthesis, archiving before compilation, or `sed -i` on shared files.
+This initial release is a working foundation and thin end-to-end workflow. It does
+not yet implement an autonomous team of model agents or demonstrate superior
+analysis/build outcomes. Analysis completion means evidence was recorded; quotation
+presence does not establish factual truth. Build completion means the declared
+commands passed against the recorded source inputs, not that all relevant behavior
+was tested.
 
-## What you get
+## Components
 
-| | |
-|---|---|
-| Skills | `sigma-review`, `sigma-build`, `sigma-setup` |
-| Agents | lead, devil's advocate, synthesis, compilation, plus 11 specialists: reference-class analyst, cognitive/decision scientist, tech architect, implementation engineer, code-quality analyst, security specialist, product strategist, product designer, UI/UX engineer, UX researcher, technical writer |
-| Hooks | chain evaluator and retrospective (Stop), phase gate (Pre/PostToolUse), MCP compliance monitor, per-agent calibration tracker, prompt-echo detector, code-debt watcher (sigma-build), session-start sync |
-| Memory | [sigma-mem](https://github.com/coloradored13/sigma-mem) MCP server: agent memory, team decisions and patterns that persist across reviews |
-| Cross-model checks | [sigma-verify](https://github.com/coloradored13/sigma-verify) MCP server (optional): findings get checked by non-Anthropic models |
+| Directory | Distribution | Purpose |
+|---|---|---|
+| `packages/workflow-core` | `sigma-public-core` | Target-bound SQLite state transitions and retry receipts |
+| `packages/memory-mcp` | `sigma-public-memory` | Explicit project memory and static stdio MCP tools |
+| `packages/verification-mcp` | `sigma-public-verify` | Quotation checks and optional policy-controlled model assessments |
+| `packages/sigma` | `sigma-public` | Durable analysis/build runs, blockers, and execution receipts |
 
-Both MCP servers are built on [hateoas-agent](https://github.com/coloradored13/hateoas-agent).
+All four are independently packaged. `uv.lock` pins the tested workspace dependency
+set. Package names are provisional and have not been reserved or published to PyPI.
+The supported development platform for this alpha is Linux with Python 3.11+ and uv.
 
-## Requirements
+## Run locally
 
-- Claude Code, with agent teams enabled: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. `/sigma-setup` adds this to `~/.claude/settings.json` with your OK. A plugin can't set it for you.
-- Python 3.11+
-- [uv](https://docs.astral.sh/uv/). `uvx` runs the MCP servers.
-- Optional, for cross-model verification: [Ollama](https://ollama.com) (local models or free-tier cloud models), or OpenAI / Google AI API keys.
+From the repository root:
 
-## Install
-
-In Claude Code:
-
-```
-/plugin marketplace add coloradored13/sigma
-/plugin install sigma@sigma
-```
-
-Start a new session, then run:
-
-```
-/sigma-setup
-```
-
-Setup checks the prerequisites, turns on agent teams, registers the `sigma-mem` and `sigma-verify` MCP servers, and confirms the runtime folder exists. Restart Claude Code once more when it's done, then run `/sigma-setup check`.
-
-The MCP servers are registered at user scope with `claude mcp add` rather than bundled in the plugin. That keeps their tool names (`mcp__sigma-mem__*`, `mcp__sigma-verify__*`) the same as the names the agent instructions and hooks refer to.
-
-## Use
-
-```
-/sigma-review Should we move our job queue from Redis to Postgres, given our current load and team size?
-/sigma-build Add rate limiting to the public API with per-key quotas and tests
+```sh
+uv --version # CI pins 0.12.19
+uv sync --frozen --all-packages
+uv run --frozen --all-packages pytest -q
+uv run --frozen --all-packages python examples/offline_demo.py
 ```
 
-The lead sizes the team to the question, asks you to confirm how it has broken the question down, and reports progress as it goes. The deliverable is a synthesis document saved under `~/.claude/teams/sigma-review/shared/archive/`, and findings also accumulate in a wiki at `shared/wiki/`.
+The demo uses a temporary synthetic project and no model providers. It exercises
+valid lateral order actions, rejects invalid actions on another order, records an
+analysis with evidence, and executes a behavioral build check. Its temporary stores
+are removed on exit.
 
-Run `python3 ~/.claude/teams/sigma-review/bin/chain-evaluator.py status` at any time to see which checks pass.
+If the host's default uv cache is read-only, select a writable location using
+`UV_CACHE_DIR`. No tool activation modifies shell profiles or personal settings.
 
-## Where things live
+## Run a build check
 
-| Path | Contents |
-|---|---|
-| `~/.claude/teams/sigma-review/shared/` | workspace, archive, wiki, roster, decisions, patterns (including one retrospective per finished review), calibration log |
-| `~/.claude/teams/sigma-review/agents/<name>/` | each agent's persistent memory (`memory.md`) and track record (`calibration.md`) |
-| `~/.claude/teams/sigma-review/agent-defs/`, `shared/directives.md`, `shared/build-directives.md`, `shared/protocols.md`, `bin/` | framework files, managed by the plugin |
-| `~/.claude/memory/` | sigma-mem's personal (non-team) memory |
+Choose an explicit database outside the project directory. The following commands
+use a new public-only store; replace the workspace with the intended public project.
+Activate the workspace environment first (`. .venv/bin/activate`), or prefix each
+command with `uv run --frozen --all-packages` from this repository root:
 
-Framework files are refreshed each time the plugin version changes. If you edited one, your copy is saved beside it as `*.user-modified-<timestamp>`. Your own state (workspace, archive, wiki, memory, roster, decisions, patterns) is created once and never overwritten.
+```sh
+sigma-public --db /tmp/sigma-public-example.sqlite --tenant demo --project sample --actor operator \
+  start --mode build --workspace /path/to/public/project --require tests
 
-To keep a history of your reviews, make `~/.claude/teams/sigma-review` a git repo, or set `SIGMA_ARCHIVE_REPO`. The evaluator's git-clean check (A14) then applies. Without a repo it reports N/A.
+# Use the returned id for RUN_ID; keep all scope flags the same.
+sigma-public --db /tmp/sigma-public-example.sqlite --tenant demo --project sample --actor operator \
+  check RUN_ID tests -- python -m pytest -q
 
-Set `SIGMA_HOME` to move the runtime folder. If you do, re-register sigma-mem with `-e SIGMA_TEAMS_DIR=<parent folder>` so both agree.
-
-## Cost
-
-The lead and teammates run on your Claude Code plan. A review typically uses 4–7 agents, so expect several times the usage of a single conversation.
-
-Only sigma-verify's API providers bill separately, per token: OpenAI and Google, if you add keys. Ollama local models are free, and Ollama's free tier includes cloud models such as `gpt-oss:120b`. Anthropic models are excluded from verification by default, because Claude checking Claude isn't a cross-model check.
-
-## Troubleshooting
-
-- **Teammates say they don't have `store_agent_memory` or `verify_finding`.** Claude Code fixes a teammate's tool list when it spawns, and these HATEOAS servers only advertise their full tool set after a first call. The lead instructions handle this: the lead calls `recall` and `init`, ends its turn, then spawns. If you drive a review by hand, do the same.
-- **`plugin root unknown`.** Start a new session. The SessionStart hook records the plugin location.
-- **A check fails that you think shouldn't.** Run `chain-evaluator.py status`. Each item says what it looked for. The rules behind every gate are in `shared/directives.md`.
-
-## Development
-
-```bash
-uv venv .venv && uv pip install -p .venv pytest
-.venv/bin/python -m pytest tests -q
+sigma-public --db /tmp/sigma-public-example.sqlite --tenant demo --project sample --actor operator \
+  finish RUN_ID
 ```
 
-## License
+Commands are explicit argv with no implicit shell. They execute with the host's
+permissions and are **not sandboxed by this library**. Select authorized commands
+and use a restricted worker when evaluating untrusted repositories. A zero exit code
+is only meaningful when the command tests intended behavior; declare appropriate
+checks instead of substituting a trivial command.
 
-Apache-2.0
+Missing checks and unresolved blockers keep a run open and incomplete. `finish
+RUN_ID --stop` closes it as incomplete; exhausted check budgets never become a pass.
+Inspection after a source change marks old completion stale. A lost executor leaves
+an unfinished receipt; stop/reap that executor before using `abandon-check RUN_ID
+CHECK_ID --executor-stopped`, then rerun the check within its original budget.
+This is explicit operator-assisted recovery, not automatic distributed recovery.
+
+## Record an analysis
+
+With the same activated environment and scope arguments, this synthetic example
+records a claim, its explicit source text, an exact quote, and limitations:
+
+```sh
+sigma-public --db /tmp/sigma-public-example.sqlite --tenant demo --project sample --actor operator \
+  start --mode analysis --workspace /path/to/public/project
+
+sigma-public --db /tmp/sigma-public-example.sqlite --tenant demo --project sample --actor operator \
+  finding RUN_ID --claim 'The sample returns 42.' --source-id synthetic-manual \
+  --source synthetic://manual --evidence 'The sample returns 42.' \
+  --quote 'returns 42' --limitations 'Synthetic illustration; no independent truth check.'
+
+sigma-public --db /tmp/sigma-public-example.sqlite --tenant demo --project sample --actor operator \
+  finish RUN_ID
+```
+
+The result explicitly reports `evidence_recorded_not_truth_verified`. CLI arguments
+may appear in shell history or process listings; use only public inputs here. Use
+the Python API for structured host integration. This does not change the privacy
+limits of storage or the host itself.
+
+## MCP servers
+
+Configure these as separate stdio servers in the chosen client. Names and storage
+must remain separate from legacy Sigma registrations. For an MCP client, set its
+command to the absolute `.venv/bin/sigma-public-memory` or
+`.venv/bin/sigma-public-verify` path and pass the arguments below separately;
+clients do not automatically activate this repository's environment:
+
+```sh
+sigma-public-memory --db /path/to/public-runtime/memory.sqlite \
+  --tenant public --project example --actor operator
+
+sigma-public-verify
+```
+
+Memory scope is fixed at startup. Tools do not accept a replacement tenant, project,
+database path, or identity. Verification is offline by default, even when ordinary
+provider credentials exist. `check_quote` establishes exact quotation presence;
+`assess_claim` returns `offline` until explicitly enabled.
+
+External assessment requires the operator to supply `--allow-external --provider
+NAME --model MODEL --endpoint https://HOST/v1/chat/completions --export-classification
+public` and set the dedicated `SIGMA_PUBLIC_VERIFY_TOKEN` securely in the server's
+environment. No other credential variable is discovered. The endpoint is the full
+OpenAI-compatible chat-completions URL. HTTPS verification remains enabled;
+redirects, automatic provider fallback, ambient proxy discovery, and model-supplied
+policy overrides are disabled. Only public, explicitly selected evidence should
+reach this server. The public classification is a host decision, not a data-loss
+prevention classifier. Live provider compatibility and reasoning quality have not
+been validated in this alpha.
+
+## Privacy and guarantees
+
+Read [the security and privacy boundaries](SECURITY.md) before using real data.
+Separate source repositories do not isolate processes: the primary model or a shell
+can still access personal files if the host permits it. Use a distinct restricted
+workspace/process identity with no private mounts. A local MCP server does not make
+the primary model local, and a localhost inference endpoint may forward to a cloud.
+
+The public repo, tests, and examples contain synthetic material. Configure explicit
+runtime stores outside the checkout; the controller enforces this for its selected
+project, while standalone memory/core libraries rely on host configuration.
+Output and command arguments are not retained
+in command receipts; only executable basename, command/output digests, timestamps,
+exit code, source digests, and fixed status codes are stored. Explicitly supplied
+findings and evidence are retained in the scoped runtime database.
+
+The workflow contracts and limits are in [CONTRACTS.md](docs/CONTRACTS.md), the
+release gates in [RELEASE.md](docs/RELEASE.md), and the research plan in
+[EVALUATION.md](docs/EVALUATION.md). Observed checks and untested areas are recorded
+in [VALIDATION.md](docs/VALIDATION.md). An optional client skill is under
+`plugins/sigma-public`; it guides this thin workflow and does not enforce permissions.
+
+## Build distributions
+
+```sh
+uv build --all-packages --out-dir dist
+uv run --frozen --all-packages python tools/check_distributions.py dist
+uv run --frozen --all-packages python tools/smoke_wheels.py dist
+```
+
+Build and install the complete set of four wheels together until distributions
+are published. `release-manifest.json` records their intended compatible versions.
+The release workflow contains no package or GitHub publication credentials.
+
+Apache-2.0. See [CONTRIBUTING.md](CONTRIBUTING.md) for development and review rules.
