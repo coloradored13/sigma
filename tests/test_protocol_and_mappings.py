@@ -130,8 +130,8 @@ class TestSigmaCommNotation:
     def test_count_format_pipe_n_pipe(self):
         """Count format |N| should be parseable."""
         test_strings = [
-            "C[detects perf, honest>polish|3|26.3]",
-            "C[probes|5|26.3]",
+            "C[prefers examples, terse>verbose|3|26.3]",
+            "C[asks why|5|26.3]",
             "|10|",
         ]
         for s in test_strings:
@@ -145,12 +145,12 @@ class TestSigmaCommNotation:
     def test_known_entry_prefixes_parsed(self):
         """All known entry types should match the entry pattern regex."""
         test_entries = [
-            "C[detects perf, honest>polish|3|26.3]",
+            "C[prefers examples, terse>verbose|3|26.3]",
             "C~[prefers-TDD]",
             "R[api-latency-p99=120ms|src:grafana|26.4.1]",
             "P[distribution>technology-for-finserv-moat]",
             "F[26.3.12] r1: 10 findings(4H,2MH,4M)",
-            "¬[developer(leader learning to build)]",
+            "¬[developer(designer who scripts)]",
             "D[build-sequence]: waterfall+distribution=STAGGERED",
         ]
         for entry in test_entries:

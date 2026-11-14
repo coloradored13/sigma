@@ -154,13 +154,13 @@ In sigma-mem memory files, the same notation is used for persistent storage:
 U[backend dev, team of 4, proj@12-01, remote, learn>ship, ai curious|6|26.3]
 
 # Anti-memory block
-¬[developer(leader learning to build) | teaching(coach mode≠teaching)]
+¬[developer(designer who scripts) | mentoring(pairing≠mentoring)]
 
 # Confirmed belief
-C[detects perf, honest>polish, probes|3|26.3]
+C[prefers examples, terse>verbose, asks why|3|26.3]
 
 # Tentative belief
-C~[uncert>conf wrong | depth match|2|26.3]
+C~[tests>docs | small PRs|2|26.3]
 
 # Research entry
 R[OWASP agentic top-10: tool-poisoning, rag-poisoning, agent-hijacking |src: owasp.org/agentic |refreshed: 26.3.7 |next: 26.4]
